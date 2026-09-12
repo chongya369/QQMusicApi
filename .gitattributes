@@ -1,0 +1,5 @@
+# Windows 批处理脚本必须使用 CRLF, 否则 cmd 解析错乱
+*.bat text eol=crlf
+
+# Shell 脚本必须使用 LF, CRLF 会导致 Linux 上无法执行
+*.sh text eol=lf

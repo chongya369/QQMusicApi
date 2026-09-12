@@ -1,0 +1,72 @@
+name: Build Binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.artifact }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: qqmusic-web-windows-x64
+          - os: ubuntu-latest
+            artifact: qqmusic-web-linux-x64
+          - os: ubuntu-24.04-arm
+            artifact: qqmusic-web-linux-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . fastapi uvicorn "pydantic-settings[toml]" loguru griffe pyinstaller
+
+      - name: Build with PyInstaller
+        run: >
+          pyinstaller --noconfirm --clean --onefile --name qqmusic-web --paths .
+          --hidden-import web.src.app
+          --hidden-import web.src.routes
+          --hidden-import web.src.modules
+          --hidden-import uvicorn.logging
+          --hidden-import uvicorn.loops.auto
+          --hidden-import uvicorn.protocols.http.auto
+          --hidden-import uvicorn.protocols.websockets.auto
+          --hidden-import uvicorn.lifespan.on
+          web/run.py
+
+      - name: Package artifacts
+        shell: bash
+        run: |
+          cp web/config.example.toml dist/config.toml
+          cd dist
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a "${{ matrix.artifact }}.zip" qqmusic-web.exe config.toml
+          else
+            tar -czf "${{ matrix.artifact }}.tar.gz" qqmusic-web config.toml
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/qqmusic-web-*
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/qqmusic-web-*
