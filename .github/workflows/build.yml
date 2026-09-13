@@ -69,15 +69,17 @@ jobs:
       - name: Install system Python 3.12 (with shared lib)
         run: |
           yum install -y python3.12 python3.12-pip python3.12-devel
+          echo "PATH 中的 python3.12 解析到: $(which python3.12)"
+          /usr/bin/python3.12 -c "import sysconfig; assert sysconfig.get_config_var('Py_ENABLE_SHARED'), 'no shared lib'; print('shared lib OK')"
 
       - name: Install dependencies
         run: |
-          python3.12 -m pip install --upgrade pip
-          python3.12 -m pip install -e . fastapi uvicorn "pydantic-settings[toml]" loguru griffe pyinstaller
+          /usr/bin/python3.12 -m pip install --upgrade pip
+          /usr/bin/python3.12 -m pip install -e . fastapi uvicorn "pydantic-settings[toml]" loguru griffe pyinstaller
 
       - name: Build with PyInstaller
         run: >
-          python3.12 -m PyInstaller --noconfirm --clean --onefile --name qqmusic-api-linux-x64 --paths .
+          /usr/bin/python3.12 -m PyInstaller --noconfirm --clean --onefile --name qqmusic-api-linux-x64 --paths .
           --hidden-import web.src.app
           --hidden-import web.src.routes
           --hidden-import web.src.modules
