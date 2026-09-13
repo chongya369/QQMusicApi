@@ -58,32 +58,26 @@ jobs:
           files: dist/qqmusic-api-*.zip
 
   build-linux:
-    name: Build ${{ matrix.artifact }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact: qqmusic-api-linux-x64
-            container: quay.io/pypa/manylinux_2_28_x86_64
-          - os: ubuntu-24.04-arm
-            artifact: qqmusic-api-linux-arm64
-            container: quay.io/pypa/manylinux_2_28_aarch64
-    runs-on: ${{ matrix.os }}
+    name: Build qqmusic-api-linux-x64
+    runs-on: ubuntu-latest
     # manylinux_2_28 基于 glibc 2.28, 产物可兼容 Debian 12 等 glibc >= 2.28 的系统
-    container: ${{ matrix.container }}
+    container: quay.io/pypa/manylinux_2_28_x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Install system Python 3.12 (with shared lib)
+        run: |
+          yum install -y python3.12 python3.12-pip python3.12-devel
+
       - name: Install dependencies
         run: |
-          /opt/python/cp312-cp312/bin/python -m pip install --upgrade pip
-          /opt/python/cp312-cp312/bin/python -m pip install -e . fastapi uvicorn "pydantic-settings[toml]" loguru griffe pyinstaller
+          python3.12 -m pip install --upgrade pip
+          python3.12 -m pip install -e . fastapi uvicorn "pydantic-settings[toml]" loguru griffe pyinstaller
 
       - name: Build with PyInstaller
         run: >
-          /opt/python/cp312-cp312/bin/pyinstaller --noconfirm --clean --onefile --name ${{ matrix.artifact }} --paths .
+          python3.12 -m PyInstaller --noconfirm --clean --onefile --name qqmusic-api-linux-x64 --paths .
           --hidden-import web.src.app
           --hidden-import web.src.routes
           --hidden-import web.src.modules
@@ -98,12 +92,12 @@ jobs:
         run: |
           cp web/config.example.toml dist/config.toml
           cd dist
-          tar -czf "${{ matrix.artifact }}.tar.gz" "${{ matrix.artifact }}" config.toml
+          tar -czf "qqmusic-api-linux-x64.tar.gz" "qqmusic-api-linux-x64" config.toml
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: qqmusic-api-linux-x64
           path: dist/qqmusic-api-*.tar.gz
 
       - name: Upload to GitHub Release

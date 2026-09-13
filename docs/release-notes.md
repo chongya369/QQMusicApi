@@ -1,4 +1,15 @@
 
+## [[0.7.2-dev.2](https://github.com/chongya369/QQMusicApi/compare/v0.7.2..v0.7.2-dev.2)] - 2026-09-13
+
+### 构建配置
+
+* 构建产物按平台重命名为 qqmusic-api-* ([b38c8fd](https://github.com/chongya369/QQMusicApi/commit/b38c8fdc2721bd85d8b836261b701e545a9101f3)) by [@chongya369](https://github.com/chongya369)
+* Windows 独立构建 job, Linux 改用 manylinux_2_28 容器提升兼容性 ([f641806](https://github.com/chongya369/QQMusicApi/commit/f641806ccb7599e57cdb85ed44ed1d836fcf71bd)) by [@chongya369](https://github.com/chongya369)
+
+### 贡献者
+
+* @chongya369
+
 ## [[0.7.2](https://github.com/L-1124/QQMusicApi/compare/v0.7.1..v0.7.2)] - 2026-08-05
 
 ### Bug 修复
