@@ -16,11 +16,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact: qqmusic-web-windows-x64
+            artifact: qqmusic-api-win-x64
           - os: ubuntu-latest
-            artifact: qqmusic-web-linux-x64
+            artifact: qqmusic-api-linux-x64
           - os: ubuntu-24.04-arm
-            artifact: qqmusic-web-linux-arm64
+            artifact: qqmusic-api-linux-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: >
-          pyinstaller --noconfirm --clean --onefile --name qqmusic-web --paths .
+          pyinstaller --noconfirm --clean --onefile --name ${{ matrix.artifact }} --paths .
           --hidden-import web.src.app
           --hidden-import web.src.routes
           --hidden-import web.src.modules
@@ -55,18 +55,22 @@ jobs:
           cp web/config.example.toml dist/config.toml
           cd dist
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            7z a "${{ matrix.artifact }}.zip" qqmusic-web.exe config.toml
+            7z a "${{ matrix.artifact }}.zip" "${{ matrix.artifact }}.exe" config.toml
           else
-            tar -czf "${{ matrix.artifact }}.tar.gz" qqmusic-web config.toml
+            tar -czf "${{ matrix.artifact }}.tar.gz" "${{ matrix.artifact }}" config.toml
           fi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: dist/qqmusic-web-*
+          path: |
+            dist/qqmusic-api-*.zip
+            dist/qqmusic-api-*.tar.gz
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/qqmusic-web-*
+          files: |
+            dist/qqmusic-api-*.zip
+            dist/qqmusic-api-*.tar.gz

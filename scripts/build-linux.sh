@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QQMusicApi Linux 本地打包脚本: 产出 dist/qqmusic-web
+# QQMusicApi Linux 本地打包脚本: 产出 dist/qqmusic-api-linux-x64
 # 前置要求: python3 及 venv 模块 (Debian/Ubuntu: apt install python3 python3-venv)
 
 set -euo pipefail
@@ -25,7 +25,7 @@ echo "[2/4] 安装依赖 ..."
 
 # 3. PyInstaller 打包为单文件可执行程序
 echo "[3/4] PyInstaller 打包 ..."
-".venv-pack/bin/pyinstaller" --noconfirm --clean --onefile --name qqmusic-web --paths . \
+".venv-pack/bin/pyinstaller" --noconfirm --clean --onefile --name qqmusic-api-linux-x64 --paths . \
     --hidden-import web.src.app \
     --hidden-import web.src.routes \
     --hidden-import web.src.modules \
@@ -41,5 +41,5 @@ echo "[4/4] 附带默认配置 ..."
 [ -f dist/config.toml ] || cp web/config.example.toml dist/config.toml
 
 echo
-echo "打包完成: $ROOT/dist/qqmusic-web"
-echo "使用方式: 将 qqmusic-web 与 config.toml 放同一目录后运行"
+echo "打包完成: $ROOT/dist/qqmusic-api-linux-x64"
+echo "使用方式: 将 qqmusic-api-linux-x64 与 config.toml 放同一目录后运行"
